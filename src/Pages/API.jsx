@@ -1,43 +1,61 @@
-import { useEffect, useState } from 'react'
-import axios from 'axios';
+import { useEffect, useState } from 'react';
 
-export default function API() {
-  const [animeList, setAnimeList] = useState([])
-  const [loading, setLoading] = useState(true)
+export default function MyTopAnime() {
+  const [animeList, setAnimeList] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const topAnimeIds = [
+    40748, // Mon numéro 1. Jujutsu Kaisen
+    29803, // Mon numéro 2. Overlord
+    11061, // Mon numéro 3. Hunter x Hunter
+    20,    // Mon numéro 4. Naruto
+    21,    // Mon numéro 5. One Piece
+    16498, // Mon numéro 6. Attack on Titan 
+    527,   // Mon numéro 7. Pokémon
+    40496, // Mon numéro 8. The Misfit of Demon King Academy
+    20583, // Mon numéro 9. Haikyuu!!
+    34012   // Mon numéro 10. Slime
+  ];
 
   useEffect(() => {
-    axios.get('https://api.jikan.moe/v4/anime?q=naruto&limit=10')
-      .then((response) => {
-        setAnimeList(response.data.data);
+    const fetchAnime = async () => {
+      try {
+        const responses = await Promise.all(
+          topAnimeIds.map(id =>
+            fetch(`https://api.jikan.moe/v4/anime/${id}`).then(res => res.json())
+          )
+        );
+        const animeData = responses.map(res => res.data);
+        setAnimeList(animeData);
+      } catch (error) {
+        console.error('Failed to fetch anime:', error);
+      } finally {
         setLoading(false);
-      })
-      .catch((error) => {
-        console.error('Error fetching data from Jikan API:', error);
-        setLoading(false);
-      });
+      }
+    };
+
+    fetchAnime();
   }, []);
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <p>Loading your top 10 anime...</p>;
 
   return (
     <div>
-      <h1>Anime List (Jikan API)</h1>
-      <div style={{ display: 'flex', flexWrap: 'wrap' }}>
-        {animeList.map(anime => (
-          <div key={anime.mal_id} style={{ margin: '10px', width: '200px' }}>
-            <img 
-              src={anime.images.jpg.image_url} 
-              alt={anime.title} 
-              style={{ width: '100%' }} 
-            />
-            <p>{anime.title}</p>
-            <p>{anime.name}</p>
-            <p>{anime.mal_id}</p>
+      <h1>My Top 10 Anime</h1>
+      <div className="anime-list">
+        {animeList.map((anime, index) => (
+          <div key={anime.mal_id} className="anime-item">
+            <h2>#{index + 1} {anime.title}</h2>
+            <img src={anime.images.jpg.image_url} alt={anime.title} />            
+            <p>
+              <strong>Genres:</strong>{' '}
+              {anime.genres && anime.genres.length > 0
+                ? anime.genres.map(genre => genre.name).join(', ')
+                : 'N/A'}
+            </p>
           </div>
         ))}
       </div>
     </div>
   );
 }
-
-
