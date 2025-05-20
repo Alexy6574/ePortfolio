@@ -16,5 +16,7 @@
 
 ## Commentaires des démos
 
-+ 9 mai : Faire mes routes dans le **app.jsx** et arranger mes fichiers comme demandé 
++ 9 mai : Faire mes routes dans le **app.jsx** et arranger mes fichiers comme demandé
+
++ 20 mai : Faire un search ou plusieurs pages pour la liste de tous les animes de l'api et faire mon Porjects.jsx et Forms.jsx
 
