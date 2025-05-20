@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-export default function MyTopAnime() {
+export default function TopAnime() {
   
 // Les deux useStat que j'ai besoins d'utiliser pour l'instant 
 
