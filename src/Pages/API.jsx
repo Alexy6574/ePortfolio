@@ -1,79 +1,69 @@
-import { useEffect, useState } from 'react'
+import { useState, useEffect } from "react";
+import './API.css';
 
-export default function MyTopAnime() {
-  
-// Les deux useStat que j'ai besoins d'utiliser pour l'instant 
+export default function API() {
+  const [animeData, setAnimeData] = useState([]);
+  const [page, setPage] = useState(1);
+  const [hasNextPage, setHasNextPage] = useState(true);
 
-  const [animeList, setAnimeList] = useState([])
-  const [loading, setLoading] = useState(true)
-
-// Les tableaux des id de mes 10 anime préférée, chaque id représente un anime 
-
-  const topAnimeIds = [
-    40748, // Mon numéro 1. Jujutsu Kaisen
-    29803, // Mon numéro 2. Overlord
-    11061, // Mon numéro 3. Hunter x Hunter
-    20,    // Mon numéro 4. Naruto
-    21,    // Mon numéro 5. One Piece
-    16498, // Mon numéro 6. Attack on Titan 
-    527,   // Mon numéro 7. Pokémon
-    40496, // Mon numéro 8. The Misfit of Demon King Academy
-    20583, // Mon numéro 9. Haikyuu!!
-    37430  // Mon numéro 10. Slime
-  ];
-
-  
   useEffect(() => {
-    const fetchAnime = async () => {
-      
-// Je fais un try, catch pour aller récuper les ids de mes top Anime avec un .map s
-      
-      try {
-        const responses = await Promise.all(
-          topAnimeIds.map(id =>
-            fetch(`https://api.jikan.moe/v4/anime/${id}`).then(res => res.json())
-          )
-        );
-        const animeData = responses.map(res => res.data)
-        setAnimeList(animeData)
+    fetch(`https://api.jikan.moe/v4/anime?page=${page}&sfw`)
+      .then((res) => res.json())
+      .then((data) => {
+        setAnimeData(data.data);
+        setHasNextPage(data.pagination.has_next_page);
+      })
+      .catch((error) => {
+        console.error("Erreur lors du fetch :", error);
+      });
+  }, [page]);
 
-// si jamais il ne fonctionne il m'affiche une erreur 
-      
-      } catch (error) {
-          console.error('Failed to fetch anime:', error)
-      } finally {
-          setLoading(false)
-      }
-    };
+  const handleNext = () => {
+    if (hasNextPage) {
+      setPage((prevPage) => prevPage + 1);
+    }
+  };
 
-    fetchAnime()
-  }, []);
-
-  if (loading) return <p>Loading your top 10 anime...</p>
-
-// Je return en allant chercher tous les informations qui m'intéresse sur chacun des animes choisis avec deux .map différent
-
-//1. .map me permet d'aller chercher l'images, l'id et le titre
-
-//2. .map me permet d'aller chercher le type d'animer
+  const handlePrevious = () => {
+    if (page > 1) {
+      setPage((prevPage) => prevPage - 1);
+    }
+  };
 
   return (
     <div>
-      <h1>My Top 10 Anime</h1>
-      <div className="anime-list">
-        {animeList.map((anime, index) => (
-          <div key={anime.mal_id} className="anime-item">
-            <h2>#{index + 1} {anime.title}</h2>
-            <img src={anime.images.jpg.image_url} alt={anime.title} />            
+      <h1>Tous les animes (Page {page})</h1>
+
+      <div className="anime-grid">
+        {animeData.map((anime) => (
+          <div key={anime.mal_id} className="anime-card">
+            <img
+              src={anime.images?.jpg?.image_url}
+              alt={anime.title}
+            />
+            <h3>{anime.title}</h3>
             <p>
-              <strong>Genres:</strong>{' '}
-              {anime.genres && anime.genres.length > 0
-                ? anime.genres.map(genre => genre.name).join(', ')
-                : 'N/A'}
+              <strong>Genres:</strong>{" "}
+              {anime.genres.map((g) => g.name).join(", ") || "Non spécifié"}
+            </p>
+            <p>
+              <strong>Rating:</strong> {anime.rating || "Non spécifié"}
+            </p>
+            <p>
+              <strong>Score:</strong> {anime.score || "Non spécifié"}
             </p>
           </div>
         ))}
       </div>
+
+      <div className="pagination-buttons">
+        <button onClick={handlePrevious} disabled={page === 1}>
+          Précédent
+        </button>
+        <button onClick={handleNext} disabled={!hasNextPage}>
+          Suivant
+        </button>
+      </div>
     </div>
-  )
+  );
 }

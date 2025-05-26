@@ -49,7 +49,7 @@ export default function TopAnime() {
     fetchAnime()
   }, []);
 
-  if (loading) return <p>Loading your top 10 anime...</p>
+  if (loading) return <p>Loading my top 10 anime...</p>
 
 // Je return en allant chercher tous les informations qui m'intéresse sur chacun des animes choisis avec deux .map différent
 
@@ -59,7 +59,7 @@ export default function TopAnime() {
 
   return (
     <div>
-      <h1>My Top 10 Anime</h1>
+      <h1>Mon Top 10 Anime</h1>
       <div className="anime-list">
         {animeList.map((anime, index) => (
           <div key={anime.mal_id} className="anime-item">
